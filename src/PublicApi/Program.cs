@@ -1,4 +1,6 @@
-﻿using BlazorShared;
+﻿using System;
+using Azure.Identity;
+using BlazorShared;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Builder;
@@ -31,6 +33,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
         .AddEntityFrameworkStores<AppIdentityDbContext>()
         .AddDefaultTokenProviders();
 
+throw new Exception("Cannot move further2");
+
 builder.Services.AddCustomServices(builder.Configuration);
 
 builder.Services.AddMemoryCache();
@@ -58,6 +62,7 @@ builder.AddSeqEndpoint(connectionName: "seq", options =>
 {
     options.ServerUrl = seqUrl;
 });
+builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
 
