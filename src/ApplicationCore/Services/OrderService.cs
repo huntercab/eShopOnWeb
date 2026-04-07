@@ -59,7 +59,7 @@ public class OrderService : IOrderService
         await _orderRepository.AddAsync(order);
         OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(order);
         await _mediator.Publish(orderCreatedEvent);
-        if (!string.IsNullOrEmpty(azureFunction) || azureFunction == "Azure Func URL")
+        if (!string.IsNullOrEmpty(azureFunction))
         {
             foreach(var item in items)
             {
