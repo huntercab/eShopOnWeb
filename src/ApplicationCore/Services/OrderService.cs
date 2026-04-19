@@ -1,4 +1,9 @@
 ﻿using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using MediatR;
@@ -18,20 +23,23 @@ public class OrderService : IOrderService
     private readonly IRepository<Basket> _basketRepository;
     private readonly IRepository<CatalogItem> _itemRepository;
     private readonly IMediator _mediator;
+    private readonly HttpClient _httpClient;
 
     public OrderService(IRepository<Basket> basketRepository,
         IRepository<CatalogItem> itemRepository,
         IRepository<Order> orderRepository,
-        IUriComposer uriComposer, IMediator mediator)
+        IUriComposer uriComposer, IMediator mediator,
+        HttpClient httpClient)
     {
         _orderRepository = orderRepository;
         _uriComposer = uriComposer;
         _basketRepository = basketRepository;
         _itemRepository = itemRepository;
         _mediator = mediator;
+        _httpClient = httpClient;
     }
 
-    public async Task CreateOrderAsync(int basketId, Address shippingAddress)
+    public async Task CreateOrderAsync(int basketId, Address shippingAddress, string azureFunction = "")
     {
         var basketSpec = new BasketWithItemsSpecification(basketId);
         var basket = await _basketRepository.FirstOrDefaultAsync(basketSpec);
@@ -55,5 +63,16 @@ public class OrderService : IOrderService
         await _orderRepository.AddAsync(order);
         OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(order);
         await _mediator.Publish(orderCreatedEvent);
+
+        if (!string.IsNullOrWhiteSpace(azureFunction))
+        {
+            var json = JsonSerializer.Serialize(order);
+            var request = new HttpRequestMessage(HttpMethod.Post, azureFunction);
+            request.Content = JsonContent.Create(order);
+
+            var response = await _httpClient.SendAsync(request);
+
+            string responseBody = await response.Content.ReadAsStringAsync();
+        }
     }
 }

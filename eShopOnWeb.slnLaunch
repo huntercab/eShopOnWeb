@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "src\\DeliveryOrderProcessor\\DeliveryOrderProcessor.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\Web\\Web.csproj",
+        "Action": "StartWithoutDebugging"
+      }
+    ]
+  }
+]
