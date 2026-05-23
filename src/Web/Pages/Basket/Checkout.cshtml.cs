@@ -56,9 +56,11 @@ public class CheckoutModel : PageModel
                 return BadRequest();
             }
 
+            var azureFunction = _configuration["AzureFunction:CreateOrderUrl"] ?? ""; 
+
             var updateModel = items.ToDictionary(b => b.Id.ToString(), b => b.Quantity);
             await _basketService.SetQuantities(BasketModel.Id, updateModel);
-            await _orderService.CreateOrderAsync(BasketModel.Id, new Address("123 Main St.", "Kent", "OH", "United States", "44240"), _configuration["AzureFunction:CreateOrderUrl"]);
+            await _orderService.CreateOrderAsync(BasketModel.Id, new Address("123 Main St.", "Kent", "OH", "United States", "44240"), azureFunction);
             await _basketService.DeleteBasketAsync(BasketModel.Id);
         }
         catch (EmptyBasketOnCheckoutException emptyBasketOnCheckoutException)
