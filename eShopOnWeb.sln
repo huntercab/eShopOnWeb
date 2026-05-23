@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.4.11626.88 stable
+VisualStudioVersion = 18.4.11626.88
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{419A6ACE-0419-4315-A6FB-B0E63D39432E}"
 EndProject
@@ -46,6 +46,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eShopWeb.AppHost", "src\eSh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eShopWeb.AspireServiceDefaults", "src\eShopWeb.AspireServiceDefaults\eShopWeb.AspireServiceDefaults.csproj", "{DC649B65-3762-44ED-9DF8-54F450CEA311}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderItemsReserver", "src\OrderItemsReserver\OrderItemsReserver.csproj", "{DD0B68B5-1C6B-A265-D196-7DAA6A094B46}"
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryOrderProcessor", "src\DeliveryOrderProcessor\DeliveryOrderProcessor.csproj", "{C7FBDB79-487B-4C6A-A99A-9AA3C84572A6}"
 EndProject
 Global

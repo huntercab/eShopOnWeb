@@ -13,6 +13,9 @@ using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate.Events;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
+using Microsoft.eShopWeb.ApplicationCore.Entities.Shared;
+using Azure.Messaging.ServiceBus;
+using System.Text.Json;
 
 namespace Microsoft.eShopWeb.ApplicationCore.Services;
 
@@ -39,7 +42,7 @@ public class OrderService : IOrderService
         _httpClient = httpClient;
     }
 
-    public async Task CreateOrderAsync(int basketId, Address shippingAddress, string azureFunction = "")
+    public async Task CreateOrderAsync(int basketId, Address shippingAddress, string azureFunction = "", string serviceBusConnectionString = "", string queueName = "")
     {
         var basketSpec = new BasketWithItemsSpecification(basketId);
         var basket = await _basketRepository.FirstOrDefaultAsync(basketSpec);
@@ -59,11 +62,40 @@ public class OrderService : IOrderService
         }).ToList();
 
         var order = new Order(basket.BuyerId, shippingAddress, items);
-
         await _orderRepository.AddAsync(order);
         OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(order);
         await _mediator.Publish(orderCreatedEvent);
 
+        
+        if (!string.IsNullOrEmpty(serviceBusConnectionString) && !string.IsNullOrEmpty(queueName))
+        {
+            var orderRequest = new OrderRequest
+            {
+                OrderId = order.Id.ToString(),
+                Items = order.OrderItems.Select(item => new OrderItemRequest
+                {
+                    ItemId = item.ItemOrdered.CatalogItemId,
+                    Quantity = item.Units
+
+                }).ToList()
+            };
+
+            var serviceBusClient = new ServiceBusClient(serviceBusConnectionString);
+            var sender = serviceBusClient.CreateSender(queueName);
+            var json = JsonSerializer.Serialize( orderRequest, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            var message = new ServiceBusMessage(json)
+            {
+                ContentType = "application/json",
+                Subject = "OrderRequested",
+                MessageId = orderRequest.OrderId
+            };
+
+            await sender.SendMessageAsync(message);
+        }
         if (!string.IsNullOrWhiteSpace(azureFunction))
         {
             var json = JsonSerializer.Serialize(order);

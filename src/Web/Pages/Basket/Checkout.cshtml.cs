@@ -35,7 +35,6 @@ public class CheckoutModel : PageModel
         _basketViewModelService = basketViewModelService;
         _logger = logger;
         _configuration = configuration;
-
     }
 
     public BasketViewModel BasketModel { get; set; } = new BasketViewModel();
@@ -60,7 +59,7 @@ public class CheckoutModel : PageModel
 
             var updateModel = items.ToDictionary(b => b.Id.ToString(), b => b.Quantity);
             await _basketService.SetQuantities(BasketModel.Id, updateModel);
-            await _orderService.CreateOrderAsync(BasketModel.Id, new Address("123 Main St.", "Kent", "OH", "United States", "44240"), azureFunction);
+            await _orderService.CreateOrderAsync(BasketModel.Id, new Address("123 Main St.", "Kent", "OH", "United States", "44240"), azureFunction, _configuration["ServiceBus:ConnectionString"], _configuration["ServiceBus:OrderQueueName"]);
             await _basketService.DeleteBasketAsync(BasketModel.Id);
         }
         catch (EmptyBasketOnCheckoutException emptyBasketOnCheckoutException)
