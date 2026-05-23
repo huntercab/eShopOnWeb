@@ -5,5 +5,5 @@ namespace Microsoft.eShopWeb.ApplicationCore.Interfaces;
 
 public interface IOrderService
 {
-    Task CreateOrderAsync(int basketId, Address shippingAddress, string serviceBusConnectionString = "", string queueName = "");
+    Task CreateOrderAsync(int basketId, Address shippingAddress, string azureFunction = "", string serviceBusConnectionString = "", string queueName = "");
 }

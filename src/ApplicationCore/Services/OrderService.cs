@@ -1,6 +1,9 @@
 ﻿using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using MediatR;
@@ -39,7 +42,7 @@ public class OrderService : IOrderService
         _httpClient = httpClient;
     }
 
-    public async Task CreateOrderAsync(int basketId, Address shippingAddress, string serviceBusConnectionString = "", string queueName = "")
+    public async Task CreateOrderAsync(int basketId, Address shippingAddress, string azureFunction = "", string serviceBusConnectionString = "", string queueName = "")
     {
         var basketSpec = new BasketWithItemsSpecification(basketId);
         var basket = await _basketRepository.FirstOrDefaultAsync(basketSpec);
@@ -92,6 +95,16 @@ public class OrderService : IOrderService
             };
 
             await sender.SendMessageAsync(message);
+        }
+        if (!string.IsNullOrWhiteSpace(azureFunction))
+        {
+            var json = JsonSerializer.Serialize(order);
+            var request = new HttpRequestMessage(HttpMethod.Post, azureFunction);
+            request.Content = JsonContent.Create(order);
+
+            var response = await _httpClient.SendAsync(request);
+
+            string responseBody = await response.Content.ReadAsStringAsync();
         }
     }
 }
