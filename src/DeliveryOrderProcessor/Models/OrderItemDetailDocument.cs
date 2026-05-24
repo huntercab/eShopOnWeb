@@ -1,6 +1,4 @@
 ﻿
-using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
-
 namespace DeliveryOrderProcessor.Models;
 
 public class OrderItemDetailDocument
