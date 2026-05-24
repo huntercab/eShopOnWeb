@@ -96,6 +96,7 @@ public class OrderService : IOrderService
 
             await sender.SendMessageAsync(message);
         }
+
         if (!string.IsNullOrWhiteSpace(azureFunction))
         {
             var json = JsonSerializer.Serialize(order);
